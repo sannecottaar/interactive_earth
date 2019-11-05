@@ -222,7 +222,7 @@ void ConvectionSimulator::propagate_seismic_waves()
 {
   const double reference_speed = 1.0;  //dummy wavespeed
   const double tstep = 0.6*dmin(grid.r_inner*grid.dtheta,grid.dr)/reference_speed; // Timestep to satisfy cfl
-  double dissipation = 0.5;  //Empirically chosen dissipation
+  double dissipation = 1.0;  //Empirically chosen dissipation
   double dispersion = 1.0e-1; //Used to damp out any total displacment that is caused by lots of earthquake sources
 
   //We can get away with an explicit timestepping scheme for the wave equation,
@@ -239,7 +239,7 @@ void ConvectionSimulator::propagate_seismic_waves()
 
     //Make the wavespeed temperature dependent.  This is a HUGE
     //temperature dependence so it is pretty obvious.
-    double speed = reference_speed*(1.0 - 0.7*T[cell->self()]);
+    double speed = reference_speed*(1.0 - 0.8*T[cell->self()]);
     speed = ( speed < 0.1 ? 0.1 : (speed > 1.0 ? 1.0 : speed));
 
     //Five point laplacian stencil
@@ -778,7 +778,7 @@ void ConvectionSimulator::update_state(double rayleigh)
   //and if that is smaller than the resolution, cap the Rayleigh number.
   const double boundary_layer_cells = 4.;  //grid cells per boundary layer
   if (length_scale < boundary_layer_cells *grid.dr)
-    Ra = 2.*Ra_c*std::pow( grid.lr/boundary_layer_cells/grid.dr, 3.0);
+    Ra = 3.*Ra_c*std::pow( grid.lr/boundary_layer_cells/grid.dr, 3.0); 
   else Ra = rayleigh;
 
   length_scale = std::pow(Ra/2./Ra_c, -1./3.)*grid.lr;
@@ -787,8 +787,8 @@ void ConvectionSimulator::update_state(double rayleigh)
   const double cfl = dmin(grid.dr, grid.r_inner*grid.dtheta)/velocity_scale;
 
   //Estimate other state properties based on simple isoviscous scalings
-  dt = cfl * 20.0; //Roughly 10x CFL, thanks to semi-lagrangian
-  heat_source_radius = length_scale*0.5;  //Radius of order the boundary layer thickness
+  dt = cfl * 5.0; //Roughly 10x CFL, thanks to semi-lagrangian
+  heat_source_radius = length_scale*0.8;  //Radius of order the boundary layer thickness
   heat_source = velocity_scale/grid.lr*2.; //Heat a blob of order the ascent time for thta blob
   composition_source_radius = grid.lr/10.; //Size of compositional blob
   composition_source=heat_source; //Strength of compositional reaction

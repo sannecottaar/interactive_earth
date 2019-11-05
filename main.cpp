@@ -138,7 +138,7 @@ void toggle_seismic_mode()
   seismograph.clear_record();
   if (seismic_mode)
   {
-    colormap = &seismic;
+    colormap = &hot;
     alt_press = false;
   }
   else

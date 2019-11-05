@@ -1,6 +1,8 @@
 #include <cmath>
 #include "convection.h"
 #include "color.h"
+#include <ft2build.h>
+#include FT_FREETYPE_H
 
 static GLuint program;
 static GLuint vbo_vertices;
