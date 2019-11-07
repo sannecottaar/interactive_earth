@@ -4,6 +4,7 @@
 #include "convection.h"
 #include "rendering_plugins.h"
 #include "color.h"
+#include <time.h>
 #include <cmath>
 #include <iostream>
 #include <iomanip>
@@ -88,6 +89,10 @@ const float mode_button_y = -0.9;
 const float heat_button_x = -mode_button_x;
 const float heat_button_y = mode_button_y;
 const float button_radius = 0.1;
+
+
+//Time since screen interaction
+time_t time_since_interaction = time(0);
 
 //Global solver
 ConvectionSimulator simulator(r_inner, ntheta,nr, include_composition);
@@ -180,7 +185,7 @@ inline bool check_buttons(float x, float y)
 inline void handle_mouse_or_finger_motion(float x, float y)
 {
   float theta, r;
-
+  time_since_interaction = time(0);
   compute_simulator_location( x, y, &theta, &r);
 
   press_theta = ltheta * theta / 2. / M_PI;
@@ -317,7 +322,9 @@ void text_output()
 
   //Output Nusselt information
   std::cout<<"Nu: "<<std::setprecision(2)<<simulator.nusselt_number()<<"\t";
-
+  //Print time for testing SC
+  double seconds_since_start = difftime( time(0), time_since_interaction);
+  std::cout<<"Time since press: "<<std::setprecision(2)<<seconds_since_start<<"\t";
   //Output time information
   if (simulation_time*timescale < 1.)
     std::cout<<"\tTime: "<<int(rint(simulation_time*timescale*1000.))<<" million years\t";
@@ -497,6 +504,23 @@ void quit()
     exit(0);
 }
 
+
+//Reset 
+void reset()
+{
+    simulator.cleanup_opengl();
+    core.cleanup();
+    if(include_tpw)
+      axis.cleanup();
+    seismograph.cleanup();
+    if (show_buttons)
+    {
+      modebutton.cleanup();
+      heatbutton.cleanup();
+    }
+
+}
+
 void loop()
 {
   SDL_Event event;
@@ -565,6 +589,11 @@ void loop()
   }
   timestep();
   SDL_GL_SwapWindow(window);
+  if (difftime(time(0),time_since_interaction)>5) 
+	{
+	reset;
+	}
+	
 }
 
 int main(int argc, char** argv)
