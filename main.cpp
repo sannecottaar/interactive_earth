@@ -322,9 +322,6 @@ void text_output()
 
   //Output Nusselt information
   std::cout<<"Nu: "<<std::setprecision(2)<<simulator.nusselt_number()<<"\t";
-  //Print time for testing SC
-  double seconds_since_start = difftime( time(0), time_since_interaction);
-  std::cout<<"Time since press: "<<std::setprecision(2)<<seconds_since_start<<"\t";
   //Output time information
   if (simulation_time*timescale < 1.)
     std::cout<<"\tTime: "<<int(rint(simulation_time*timescale*1000.))<<" million years\t";
@@ -508,16 +505,13 @@ void quit()
 //Reset 
 void reset()
 {
-    simulator.cleanup_opengl();
-    core.cleanup();
-    if(include_tpw)
-      axis.cleanup();
-    seismograph.cleanup();
-    if (show_buttons)
+    time_since_interaction = time(0);
+    if (seismic_mode)
     {
-      modebutton.cleanup();
-      heatbutton.cleanup();
-    }
+	toggle_seismic_mode();
+    }	
+    simulator.initialize_temperature();
+
 
 }
 
@@ -589,9 +583,9 @@ void loop()
   }
   timestep();
   SDL_GL_SwapWindow(window);
-  if (difftime(time(0),time_since_interaction)>5) 
+  if (difftime(time(0),time_since_interaction)>25) 
 	{
-	reset;
+	reset();
 	}
 	
 }
