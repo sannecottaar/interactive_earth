@@ -480,6 +480,7 @@ void init()
 
     glfreetype::print(our_font, -0.9 /* xpos */, -0.9 /* ypos */, 
                           "Test");
+    //////
 
 
     simulator.setup_opengl();
