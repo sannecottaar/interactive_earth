@@ -14,6 +14,10 @@
 #include <emscripten/html5.h>
 #endif
 
+//SC text rendering
+#include "glfreetype/include/glfreetype/TextRenderer.hpp"
+#include <GLFW/glfw3.h>
+
 /*********************************************
     MODIFY THSE PARAMETERS TO CHANGE THE
     BEHAVIOR OF THE SIMULATION.
@@ -342,6 +346,10 @@ void timestep()
   {
     modebutton.draw();
     heatbutton.draw();
+    // attempt to add text SC
+    // NEHE's font system
+    //glfreetype::font_data our_font;
+    //our_font.init("arial.ttf", 25 /* size */);
   }
 
   //Do the convection problem if not in seismic mode
@@ -464,6 +472,14 @@ void init()
     if (glew_status != GLEW_OK) {
       fprintf(stderr, "Error: %s\n", glewGetErrorString(glew_status));
     }
+    // NEHE's font system
+    glfreetype::font_data our_font;
+    our_font.init("/usr/include/arial.ttf", 25 /* size */);
+
+    glColor3ub(100.,155.,255.);
+
+    glfreetype::print(our_font, -0.9 /* xpos */, -0.9 /* ypos */, 
+                          "Test");
 
 
     simulator.setup_opengl();
@@ -473,9 +489,11 @@ void init()
     seismograph.setup();
     if (show_buttons)
     {
-      modebutton.setup();
+     modebutton.setup();
       heatbutton.setup();
     }
+
+
 }
 
 //Cleanup
@@ -570,6 +588,9 @@ void loop()
 int main(int argc, char** argv)
 {
     init();
+
+
+
 
     //The browser needs to handle the event loop if we are using
     //Emscripten, so in that case we need to give the event loop

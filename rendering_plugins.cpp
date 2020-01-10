@@ -3,6 +3,10 @@
 #include "rendering_plugins.h"
 #include "color.h"
 
+//SC text rendering
+#include "glfreetype/include/glfreetype/TextRenderer.hpp"
+#include <GLFW/glfw3.h>
+
 extern color (*colormap)(double);
 
 void Core::setup()
@@ -401,6 +405,8 @@ void Axis::draw()
 #ifndef __EMSCRIPTEN__
   glDisable(GL_POLYGON_SMOOTH);
 #endif
+
+
 }
 
 void Axis::cleanup()
@@ -901,6 +907,8 @@ void ModeButton::draw()
   glDisable(GL_POLYGON_SMOOTH);
 #endif
   glLineWidth(1.0);
+
+
 }
 
 void ModeButton::cleanup()
