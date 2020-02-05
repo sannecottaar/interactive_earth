@@ -7,6 +7,8 @@
 extern const double r_inner;
 extern const unsigned int nr, ntheta;
 extern const double flattening;
+extern const double r_scaling;
+
 
 // User interaction state
 extern bool seismic_mode;

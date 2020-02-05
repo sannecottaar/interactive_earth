@@ -16,7 +16,7 @@ inline color interpolate_from_cmap_data( const double x, const double* data, con
 
 
 double hot_data[len_colormap*3] = {
-  0.0 , 0.0 , 0.0 ,
+  0.0, 0.0, 0.0 ,
   0.0078431372549 , 0.0 , 0.0 ,
   0.0156862745098 , 0.0 , 0.0 ,
   0.0235294117647 , 0.0 , 0.0 ,

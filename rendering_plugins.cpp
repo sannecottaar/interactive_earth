@@ -133,17 +133,17 @@ void Core::draw()
 
   const float angle = sim.spin_angle();
   const float a = 1.0f;
-  const float b = 1.0f-flattening;
+  const float b = (1.0f-flattening);
 
   unsigned long v = 2; //start at the next vertex index after the one in the center
   for (unsigned long n = 0; n < n_triangles; ++n)
   {
     const float theta = dtheta*n;
     //Vertices of the inner ellipse
-    vertices[v + 0] = r_inner*(a+b)/2. * std::cos(theta) +
-                      r_inner*(a-b)/2. * std::cos(-theta+ 2.*(angle+M_PI/2.));
-    vertices[v + 1] = r_inner*(a+b)/2. * std::sin(theta) +
-                      r_inner*(a-b)/2. * std::sin(-theta+ 2.*(angle+M_PI/2.));
+    vertices[v + 0] = r_scaling*r_inner*(a+b)/2. * std::cos(theta) +
+                      r_scaling*r_inner*(a-b)/2. * std::cos(-theta+ 2.*(angle+M_PI/2.));
+    vertices[v + 1] = r_scaling*r_inner*(a+b)/2. * std::sin(theta) +
+                      r_scaling*r_inner*(a-b)/2. * std::sin(-theta+ 2.*(angle+M_PI/2.));
 
     v += coordinates_per_vertex;
   }
@@ -326,7 +326,7 @@ void Axis::draw()
 
   const float d2r = M_PI/180.0;
   const float theta = float( sim.spin_angle() );
-  const float r = 0.8 * r_inner * (1.0f-flattening);
+  const float r = 0.8 *  r_inner * (1.0f-flattening);
   const float arrowhead = 0.1*r_inner;
   const float dtheta = 0.5/r_inner * d2r;
 
@@ -436,7 +436,7 @@ void Seismograph::setup()
     unsigned int v = 0;
     for (unsigned int i=0; i<n_lines+1; ++i)
     {
-      vertices[v + 0] = -0.9f*r_inner*(1.0f-flattening) + float(i)/float(n_vertices) * 1.8f*r_inner*(1.0f-flattening);
+      vertices[v + 0] = -0.9f*r_scaling*r_inner*(1.0f-flattening) + float(i)/float(n_vertices) * 1.8f*r_scaling*r_inner*(1.0f-flattening);
       vertices[v + 1] = 0.f;
       v += coordinates_per_vertex;
     }
@@ -576,7 +576,7 @@ void Seismograph::draw()
     vertices[v + 1] = vertices[v+3];
     v += coordinates_per_vertex;
   }
-  vertices[(n_lines+1)*coordinates_per_vertex - 1] = sim.seismometer_reading() * 0.7*r_inner;
+  vertices[(n_lines+1)*coordinates_per_vertex - 1] = sim.seismometer_reading() * 0.7*r_scaling*r_inner;
 
   //Fill the vertex information about the seismometer
   double theta, r;
@@ -586,21 +586,22 @@ void Seismograph::draw()
   //Information about ellipticity
   const float angle = sim.spin_angle();
   const float a = 1.0f;
-  const float b = 1.0f-flattening;
+  const float b = (1.0f-flattening);
 
   //Position of the seismometer in (possibly) elliptical space 
-  const float seis_x = r*(a+b)/2. * std::cos(theta) +
-                       r*(a-b)/2. * std::cos(-theta+ 2.*(angle+M_PI/2.));
-  const float seis_y = r*(a+b)/2. * std::sin(theta) +
-                       r*(a-b)/2. * std::sin(-theta+ 2.*(angle+M_PI/2.));
+  const float seis_x = r_scaling*r*(a+b)/2. * std::cos(theta) +
+                       r_scaling*r*(a-b)/2. * std::cos(-theta+ 2.*(angle+M_PI/2.));
+  const float seis_y = r_scaling*r*(a+b)/2. * std::sin(theta) +
+                       r_scaling*r*(a-b)/2. * std::sin(-theta+ 2.*(angle+M_PI/2.));
 
-  //Seismometer vertices
-  vertices[ (n_lines+1)*coordinates_per_vertex + 0] = seis_x-0.04;
-  vertices[ (n_lines+1)*coordinates_per_vertex + 1] = seis_y+0.04;
-  vertices[ (n_lines+2)*coordinates_per_vertex + 0] = seis_x+0.04;
-  vertices[ (n_lines+2)*coordinates_per_vertex + 1] = seis_y+0.04;
+  //Seismometer vertices 
+  const float seis_size=0.04 *r_scaling;
+  vertices[ (n_lines+1)*coordinates_per_vertex + 0] = seis_x-seis_size;
+  vertices[ (n_lines+1)*coordinates_per_vertex + 1] = seis_y+seis_size;
+  vertices[ (n_lines+2)*coordinates_per_vertex + 0] = seis_x+seis_size;
+  vertices[ (n_lines+2)*coordinates_per_vertex + 1] = seis_y+seis_size;
   vertices[ (n_lines+3)*coordinates_per_vertex + 0] = seis_x;
-  vertices[ (n_lines+3)*coordinates_per_vertex + 1] = seis_y-0.04;
+  vertices[ (n_lines+3)*coordinates_per_vertex + 1] = seis_y-seis_size;
 
   glEnable(GL_BLEND);
 #ifndef __EMSCRIPTEN__
@@ -669,8 +670,8 @@ void Seismograph::cleanup()
 void ModeButton::setup()
 {
   {
-    const unsigned long n_triangles = 100;
-    const unsigned long n_lines = 100;
+    const unsigned long n_triangles = 200;
+    const unsigned long n_lines = 200;
     const unsigned long n_vertices = n_triangles + 1 + n_lines + 1;
 
     vertices = new GLfloat[ n_vertices * coordinates_per_vertex ];
@@ -819,8 +820,8 @@ void ModeButton::setup()
 
 void ModeButton::draw()
 {
-  const unsigned long n_triangles = 100;
-  const unsigned long n_lines = 100;
+  const unsigned long n_triangles = 200;
+  const unsigned long n_lines = 200;
   const unsigned long n_vertices = n_triangles + 1 + n_lines + 1;
 
   // Update the color if we are in seismic mode to indicate it is enabled.
@@ -918,8 +919,8 @@ void ModeButton::cleanup()
 void HeatButton::setup()
 {
   {
-    const unsigned long n_theta = 64;
-    const unsigned long n_r = 16;
+    const unsigned long n_theta = 128;
+    const unsigned long n_r = 32;
     const unsigned long n_triangles = n_theta + (n_r - 1)*n_theta*2;
     const unsigned long n_vertices = 1 + n_r * n_theta; // One for the central vertex
 
@@ -1059,23 +1060,27 @@ void HeatButton::setup()
 
 void HeatButton::draw()
 {
-  const unsigned long n_theta = 64;
-  const unsigned long n_r = 16;
+  const unsigned long n_theta = 128;
+  const unsigned long n_r = 32;
   const unsigned long n_triangles = n_theta + (n_r - 1)*n_theta*2;
   const unsigned long n_vertices = 1 + n_r * n_theta; // One for the central vertex
 
   // Update the button color depending upon whether we are in hot or cold mode
   color hot_color = hot(0.75);
   color cold_color = hot(0.25);
-  color disabled_color = { 0.5, 0.5, 0.5 };
+  color disabled_color = { 0., 0., 0. };
+
 
   //one vertex at the origin
+  color *button_color, *center_color;
   const float t_center = alt_press ? 0.0 : 1.0;
   const float t_background = 0.3;
-  const color center_color = hot(t_center);
-  vertex_colors[0] = center_color.R;
-  vertex_colors[1] = center_color.G;
-  vertex_colors[2] = center_color.B;
+  hot_color = hot(t_center);
+  button_color = !seismic_mode ? &hot_color : &disabled_color;
+  center_color = button_color;
+  vertex_colors[0] = center_color->R;
+  vertex_colors[1] = center_color->G;
+  vertex_colors[2] = center_color->B;
 
   unsigned long c=3; //start at the next vertex index
   for (unsigned long n = 1; n < n_vertices; ++n)
@@ -1086,9 +1091,18 @@ void HeatButton::draw()
                        t_background - t_background*std::exp(-r*r*5.0) :
                        t_background + (1.0-t_background)*std::exp(-r*r*5.0);
     const color vertex_color = hot(temp);
-    vertex_colors[c + 0] = vertex_color.R;
-    vertex_colors[c + 1] = vertex_color.G;
-    vertex_colors[c + 2] = vertex_color.B;
+    if (seismic_mode)
+	{
+    	vertex_colors[c + 0] = disabled_color.R;
+    	vertex_colors[c + 1] = disabled_color.G;
+    	vertex_colors[c + 2] = disabled_color.B;
+	}
+    else
+	{
+    	vertex_colors[c + 0] = vertex_color.R;
+    	vertex_colors[c + 1] = vertex_color.G;
+    	vertex_colors[c + 2] = vertex_color.B;
+	}
 
     c += colors_per_vertex;
   }
@@ -1143,11 +1157,11 @@ void HeatButton::draw()
 
 void HeatButton::cleanup()
 {
-  delete[] vertices;
-  delete[] vertex_colors;
-  delete[] vertex_indices;
+  //delete[] vertices;
+  //delete[] vertex_colors;
+  //delete[] vertex_indices;
 
-  glDeleteProgram(plugin_program);
+  //glDeleteProgram(plugin_program);
   glDeleteBuffers(1, &plugin_vertices);
   glDeleteBuffers(1, &plugin_vertex_colors);
   glDeleteBuffers(1, &plugin_vertex_indices);
